@@ -5,8 +5,7 @@ const bcrypt = require("bcrypt");
 const shortid = require("shortid");
 
 const signUp = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
-    console.log("req.body", req.body)
+    const { firstName, lastName, email, password, username } = req.body;
     if (!firstName || !lastName || !email || !password) {
         return res.status(StatusCodes.BAD_REQUEST)
             .json({
@@ -20,26 +19,31 @@ const signUp = async (req, res) => {
         firstName,
         lastName,
         email,
-        hash_password
+        hash_password,
+        username
     };
 
-    const user = await User.findOne({ email });
-    console.log("user", user)
-    if (user) {
-        return res.status(StatusCodes.BAD_REQUEST)
-            .json({
-                message: "User already registered"
-            })
-    } else {
-        User.create(userData)
-            .then((data, err) => {
-                if (err) {
-                    res.status(StatusCodes.BAD_REQUEST).json({ err })
-                } else {
-
-                }
-            })
-    }
+    User.findOne({ email })
+        .exec()
+        .then((user) => {
+            if (user) {
+                return res.status(StatusCodes.BAD_REQUEST)
+                    .json({
+                        message: "User already registered"
+                    })
+            } else {
+                User.create(userData)
+                    .then((data, err) => {
+                        if (err) {
+                            res.status(StatusCodes.BAD_REQUEST).json({ message: err })
+                        } else {
+                            res.status(StatusCodes.CREATED).json({
+                                message: "Successful Created"
+                            })
+                        }
+                    })
+            }
+        })
 }
 
 const signIn = async (req, res) => {

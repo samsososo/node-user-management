@@ -59,4 +59,4 @@ userSchema.method({
     },
 });
 
-module.exports = mongoose.model("profile", userSchema);
+module.exports = mongoose.model("User", userSchema);
